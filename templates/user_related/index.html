@@ -1,0 +1,33 @@
+{% extends "reservation/base.html" %}
+{% block title %}
+    Home
+{% endblock title %}
+
+
+{% block anouncement %}
+    <div class="jumbotron">
+      <div class="container">
+        <h1>Hello, B7007</h1>
+        <p>This is a template for a simple marketing or informational website. It includes a large callout called a jumbotron and three supporting pieces of content. Use it as a starting point to create something more unique.</p>
+        <p><a class="btn btn-primary btn-lg" href="#" role="button">View Details &raquo;</a></p>
+      </div>
+    </div> 
+{% endblock anouncement %}
+
+
+{% block body_block %}
+    <div class="container">
+      <!-- Example row of columns -->
+        <div class="row"> 
+          {% for instruid in instrument %}
+          <div class="col-md-4">
+          <h2>{{ instruid.Instrument_name }}</h2>
+          <p><a class="btn btn-default" href="#" role="button">Subscribe &raquo;</a></p> 
+          </div>
+          {% endfor %} 
+        </div>
+    </div>    
+    <hr> 
+{% endblock body_block %}
+            
+

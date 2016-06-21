@@ -1,0 +1,9 @@
+{% if instruments %}
+    <ul class="nav nav-sidebar">
+        {% for instrument in instruments %}
+            <li><a href="">{{instrument.Instrument_name}}</a></li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <li><strong>There are no instrument avaiable.</strong></li>
+{% endif %}
