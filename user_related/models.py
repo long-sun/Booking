@@ -1,45 +1,138 @@
-# coding=utf8
+# coding = utf8
 
+from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
+from django.contrib.contenttypes.models import ContentType
+from django.core import validators
+from django.contrib.auth.models import PermissionsMixin
+from django.core.mail import send_mail
 from django.db import models
-from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 
 
-class UserProfile(models.Model):
-    user = models.OneToOneField(User, primary_key=True)
+class UserManager(BaseUserManager):
+    use_in_migrations = True
+
+    def _create_user(self, email, name, password, **extra_fields):
+        """
+        Creates and saves a User with the given username, email and password.
+        """
+        if not email:
+            raise ValueError('必须提供邮箱地址！')
+        email = self.normalize_email(email)
+        user = self.model(email=email, name=name, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_user(self, email, name=None, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', False)
+        extra_fields.setdefault('is_superuser', False)
+        return self._create_user(email, name, password, **extra_fields)
+
+    def create_superuser(self, email, name, password, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser must have is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+
+        return self._create_user(email, name, password, **extra_fields)
+
+
+class User(AbstractBaseUser, PermissionsMixin):
+    email = models.EmailField(
+        _('电子邮件地址'),
+        max_length=50,
+        unique=True,
+        validators=[
+            validators.RegexValidator(
+                r'\b[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z0-9.-]+',
+            ),
+        ],
+        error_messages={
+            'unique': _("该邮箱已注册！"),
+        },
+    )
     name = models.CharField(
         _('姓名'),
         max_length=10,
-        help_text=_('请输入您的真实姓名'),
+        validators=[
+            validators.RegexValidator(
+                r'[\u4e00-\u9fa5]{2,4}',
+            ),
+        ],
         error_messages={
-            'required': _("请输入您的真实姓名！"),
+            'required': _('您的大名是必须要填的～')
         }
     )
-
     phone = models.CharField(
-        _('手机号码'),
+        _('手机号'),
+        max_length=11,
         unique=True,
-        max_length=11)
-
-    STUDENT_TYPES = (
-        (0, 'Master'),
-        (1, 'Doctor'),
-        (None, '如您不选则无法使用预约等功能'),
+        validators=[
+            validators.RegexValidator(
+                r'1\d{10}',
+                _('请输入正常的手机号～～')
+            ),
+        ],
+        error_messages={
+            'required': _('您的手机号是必须填的~'),
+            'unique': _('您输入的手机号已存在～'),
+        }
     )
-    student_type = models.IntegerField(choices=STUDENT_TYPES)
-    picture = models.ImageField(
-        _('头像'),
-        upload_to='UserProfile/picture'
-    )
-    birthday = models.DateField(
-        _('生日'),
-    )
-    year = models.CharField(
-        _('入学年份'),
-        max_length=4
-    )
-    introduct = models.TextField(
-        _('自我介绍'),
+    nick_name = models.CharField(
+        _('昵称'),
+        max_length=30,
         blank=True
     )
+    is_staff = models.BooleanField(
+        _('staff status'),
+        default=False,
+        help_text=_('Designates whether the user can log into this admin site.'),
+    )
+    is_active = models.BooleanField(
+        _('active'),
+        default=True,
+        help_text=_(
+            'Designates whether this user should be treated as active. '
+            'Unselect this instead of deleting accounts.'
+        ),
+    )
+    date_joined = models.DateTimeField(_('注册日期'), auto_now_add=True)
+
+    objects = UserManager()
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['name', 'phone']
+
+    class Meta:
+        abstract = False
+        verbose_name = _('用户')
+        verbose_name_plural = _('用户')
+        ordering = ('name',)
+
+    def __str__(self):
+        return self.name
+
+    def get_full_name(self):
+        """
+        Returns the first_name plus the last_name, with a space in between.
+        """
+        full_name = '%s %s' % (self.name, self.nick_name)
+        return full_name.strip()
+
+    def get_short_name(self):
+        "Returns the short name for the user."
+        return self.name
+
+    def email_user(self, subject, message, from_email=None, **kwargs):
+        """
+        Sends an email to this User.
+        """
+        send_mail(subject, message, from_email, [self.email], **kwargs)
+
+
+
 

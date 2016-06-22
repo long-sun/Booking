@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 {% load static %}
-{% load reservation_extras %}
+
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -31,7 +31,7 @@
   </head>
 
   <body>
-
+    <!-- 导航栏 -->
     <nav class="navbar navbar-inverse navbar-fixed-top">
       <div class="container">
         <div class="navbar-header">
@@ -61,14 +61,10 @@
     {% block anouncement %}    {% endblock anouncement %}
 
     {% block body_block %}    {% endblock body_block %}
-    
-    <div class="col-sm-3 col-md-2 sidebar">
-    {% block side_block %}
-    {% get_instrument_list %}
-    {% endblock side_block %}  
-    </div>
+
     
     <div class="container">
+        <hr>
       <footer >
         <p>&copy; B7007 2005-2016 </p>
         <p>Manage: Tao Email: tjam266@sina.com</p>
