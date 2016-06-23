@@ -12,24 +12,24 @@ from django.utils.translation import ugettext_lazy as _
 class UserManager(BaseUserManager):
     use_in_migrations = True
 
-    def _create_user(self, email, name, password, **extra_fields):
+    def _create_user(self, email, name, password, phone, **extra_fields):
         """
         Creates and saves a User with the given username, email and password.
         """
         if not email:
             raise ValueError('必须提供邮箱地址！')
         email = self.normalize_email(email)
-        user = self.model(email=email, name=name, **extra_fields)
+        user = self.model(email=email, name=name, phone=phone, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_user(self, email, name=None, password=None, **extra_fields):
+    def create_user(self, email, name=None, password=None, phone=None, **extra_fields):
         extra_fields.setdefault('is_staff', False)
         extra_fields.setdefault('is_superuser', False)
-        return self._create_user(email, name, password, **extra_fields)
+        return self._create_user(email, name, password, phone, **extra_fields)
 
-    def create_superuser(self, email, name, password, **extra_fields):
+    def create_superuser(self, email, name, password, phone, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
 
@@ -38,7 +38,7 @@ class UserManager(BaseUserManager):
         if extra_fields.get('is_superuser') is not True:
             raise ValueError('Superuser must have is_superuser=True.')
 
-        return self._create_user(email, name, password, **extra_fields)
+        return self._create_user(email, name, password, phone, **extra_fields)
 
 
 class User(AbstractBaseUser, PermissionsMixin):
@@ -61,10 +61,11 @@ class User(AbstractBaseUser, PermissionsMixin):
         validators=[
             validators.RegexValidator(
                 r'[\u4e00-\u9fa5]{2,4}',
+                _('您的姓名必须为汉字')
             ),
         ],
         error_messages={
-            'required': _('您的大名是必须要填的～')
+            'required': _('务必提供您的真实姓名')
         }
     )
     phone = models.CharField(
@@ -74,12 +75,12 @@ class User(AbstractBaseUser, PermissionsMixin):
         validators=[
             validators.RegexValidator(
                 r'1\d{10}',
-                _('请输入正常的手机号～～')
+                _('您的手机号必须为11位，且以数字1开头')
             ),
         ],
         error_messages={
-            'required': _('您的手机号是必须填的~'),
-            'unique': _('您输入的手机号已存在～'),
+            'required': _('务必提供您的手机号'),
+            'unique': _('您输入的手机号已存在'),
         }
     )
     nick_name = models.CharField(

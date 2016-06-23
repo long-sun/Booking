@@ -5,5 +5,5 @@ from user_related import views
 urlpatterns = [
     url(r'^$', views.index, name='index'),
     url(r'^admin/', admin.site.urls),
-    url(r'^user_related/', include('user_related.urls')),
+    url(r'^account/', include('user_related.urls')),
 ]

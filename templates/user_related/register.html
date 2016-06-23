@@ -1,7 +1,7 @@
 <style type="text/css">
     .asteriskField {
-    display: none;
-}
+        display: none;
+    }
 </style>
 {% extends 'user_related/base.html' %}
 {% load crispy_forms_tags %}
@@ -21,14 +21,10 @@
                     <p><a href="">添加个人信息</a></p>
                     <p><a href="">仪器预约</a></p>
                 {% else %}
-                <form action="{% url 'register' %}" method="POST" id="user_form" class="form-horizontal">
+                    <form action="{% url 'register' %}" method="POST" id="register_form" class="form-horizontal">
                     {% csrf_token %}
                     {% crispy user_form %}
-                    <div class="col-lg-4"></div>
-                    <div class="col-lg-8">
-                        <input type="submit" class="btn btn-success" value="注册">
-                    </div>
-                </form>
+                    </form>
                 {% endif %}
             </div>
             <div class="col-lg-1"></div>

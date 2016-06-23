@@ -27,8 +27,23 @@ def register(request):
     }
             )
 
-#def login(request):
-    #if request.method == 'POST'
+
+def user_login(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        user = authenticate(email=email, password=password)
+        if user:
+            if user.is_active():
+                login(request, user)
+                return HttpResponseRedirect('/index/')
+            else:
+                return HttpResponse('您的账户目前不可用')
+        else:
+            print("您输入的邮箱地址或密码有误: \n{0},\n{1}".format(email, password))
+            return HttpResponse("请重新输入")
+    else:
+        return render(request, 'user_related/login.html', {})
 
 
 @login_required

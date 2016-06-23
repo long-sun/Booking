@@ -133,3 +133,4 @@ MEDIA_URL = '/media/'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 AUTH_USER_MODEL = 'user_related.User'
+LOGIN_URL = '/login/'
